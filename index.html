@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CesiumJS Visualization</title>
+  <script src="https://cesium.com/downloads/cesiumjs/releases/1.96/Build/Cesium/Cesium.js"></script>
+  <link href="https://cesium.com/downloads/cesiumjs/releases/1.96/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+  <style>
+    body, html, #cesiumContainer {
+      width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden;
+    }
+  </style>
+</head>
+<body>
+  <div id="cesiumContainer"></div>
+
+  <script>
+    // Set your Cesium Ion access token
+    Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIwNjNlNTU3NC0xNmU0LTRmZjgtYmZmOS01ZGY5MTA2OGI1ZjciLCJpZCI6MjQxMTczLCJpYXQiOjE3MjYxNjIxODJ9.8xEeLW5Th6nY5ebgCni2LLFq2sqrxDWmvc0kP6XzGbI';
+
+    // Initialize Cesium Viewer
+    var viewer = new Cesium.Viewer('cesiumContainer', {
+      terrainProvider: Cesium.createWorldTerrain(),
+      timeline: false, // Disable timeline for single point data
+      animation: false // Disable animation for single point data
+    });
+
+    // Load the data.geojson file
+    Cesium.GeoJsonDataSource.load('data_cesium.geojson').then(function(dataSource) {
+      viewer.dataSources.add(dataSource);
+
+      // Zoom to the data source
+      viewer.zoomTo(dataSource);
+
+      // Customize point visualization
+      var entities = dataSource.entities.values;
+      for (var i = 0; i < entities.length; i++) {
+        var entity = entities[i];
+        var coordinates = entity.geometry.coordinates;
+
+        if (coordinates) {
+          entity.point = new Cesium.PointGraphics({
+            pixelSize: 10,
+            color: Cesium.Color.RED,
+            heightReference: Cesium.HeightReference.RELATIVE_TO_GROUND
+          });
+
+          // Add labels for ROI and Time
+          entity.label = new Cesium.LabelGraphics({
+            text: 'ROI: ' + entity.properties.ROI + '\nTime: ' + entity.properties.Time,
+            font: '14px sans-serif',
+            fillColor: Cesium.Color.YELLOW,
+            style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+            outlineWidth: 2,
+            verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+            pixelOffset: new Cesium.Cartesian2(0, -15)
+          });
+        } else {
+          console.warn('No coordinates found for entity:', entity);
+        }
+      }
+    }).catch(function(error) {
+      console.error('Error loading GeoJSON:', error.message || error);
+    });
+  </script>
+</body>
+</html>
