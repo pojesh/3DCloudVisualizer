@@ -1,2 +1,2 @@
 # 3DCloudVisualizer
- 3d visualizer using cesium
+ Web hosted application to visualize cloud systems with depth perception 
